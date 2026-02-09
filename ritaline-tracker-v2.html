@@ -1,0 +1,2889 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Application de suivi médical pour Ritaline (Méthylphénidate)">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiU3VpdmkgUml0YWxpbmUiLCJzaG9ydF9uYW1lIjoiUml0YWxpbmUiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBmMTcyYSIsInRoZW1lX2NvbG9yIjoiIzI1NjNlYiIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSXhNakFpSUdobGFXZG9kRDBpTVRJd0lqNDhjbVZqZENCM2FXUjBhRDBpTVRJd0lpQm9aV2xuYUhROUlqRXlNQ0lnWm1sc2JEMGlJekkxTmpObFlpSXZQanh3WVhSb0lHUTlJazB6TUNBMk1Fd3hNVEFnTmpCRE9UQWdOakFnT1RBZ09EQWdPVEFnTVRBd1F6a3dJREV5TUNBMk9DQXhNakFnTXpBZ01USXdRekV5SURFeU1DQXhNaUF4TURBZ01USWdPREJETVRJZ05qQWdNekFnTmpBZ016QWdOakJhSWlCbWFXeHNQU0ozYUdsMFpTSXZQand2YzNablBnPT0iLCJzaXplcyI6IjEyMHgxMjAiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    <title>Suivi Ritaline V2 - Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --focus-color: #3b82f6;
+            --crash-color: #8b5cf6;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #06b6d4;
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+        
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--crash-color) 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .app-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .version-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            overflow-x: auto;
+            padding: 0 2rem;
+            gap: 0.5rem;
+        }
+        
+        .nav-tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .nav-tab:hover {
+            color: var(--primary);
+            background: var(--bg-input);
+        }
+        
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px var(--shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        input[type="date"],
+        input[type="time"],
+        input[type="number"],
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        select {
+            cursor: pointer;
+        }
+        
+        /* Dose Entry */
+        .dose-entry {
+            background: var(--bg-main);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .dose-entry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.5fr;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .remove-dose {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-dose:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+        
+        /* Sliders */
+        .slider-container {
+            margin-top: 0.5rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .slider-value {
+            display: inline-block;
+            margin-left: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            color: var(--focus-color);
+        }
+        
+        .side-effects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .side-effect-item {
+            background: var(--bg-main);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .side-effect-item label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #0891b2;
+            transform: translateY(-2px);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-group button {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        /* Stats Cards */
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--crash-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .stat-change {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        thead {
+            background: var(--primary);
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+        
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        tbody tr {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background: var(--bg-input);
+        }
+        
+        .detail-row {
+            display: none;
+            background: var(--bg-main);
+        }
+        
+        .detail-row.active {
+            display: table-row;
+        }
+        
+        .detail-content {
+            padding: 1.5rem;
+        }
+        
+        .detail-doses {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .detail-dose-card {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--focus-color);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .tag-low { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .tag-medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .tag-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .tag-work { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tag-weekend { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+        .tag-exam { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .tag-sport { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        
+        /* Crash Bar */
+        .crash-bar {
+            height: 8px;
+            background: linear-gradient(90deg, var(--crash-color) 0%, #ec4899 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .crash-bar-container {
+            width: 100px;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        /* Charts */
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        svg {
+            width: 100%;
+            height: auto;
+        }
+        
+        /* Calendar Heatmap */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+        }
+        
+        .calendar-day:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .calendar-day-number {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .calendar-day-dose {
+            font-size: 0.7rem;
+            font-family: 'Fira Code', monospace;
+            opacity: 0.7;
+        }
+        
+        .calendar-day.has-data {
+            background: linear-gradient(135deg, var(--primary), var(--crash-color));
+            color: white;
+            border-color: transparent;
+        }
+        
+        .calendar-day.today {
+            border: 2px solid var(--warning);
+        }
+        
+        /* Search & Filters */
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: 20px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg-card);
+        }
+        
+        .timeline-content {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        /* Insights */
+        .insight-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .insight-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+        
+        .alert-info {
+            background: rgba(6, 182, 212, 0.1);
+            border-left: 4px solid var(--info);
+            color: var(--info);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dose-entry-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .side-effects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .app-header {
+                padding: 1rem;
+            }
+            
+            .app-title h1 {
+                font-size: 1.2rem;
+            }
+            
+            .nav-tabs {
+                padding: 0 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group button {
+                width: 100%;
+            }
+            
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .notes-preview {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+        
+        /* Auto-save indicator */
+        .auto-save-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1500;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .auto-save-indicator.show {
+            display: flex;
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="app-title">
+                <h1>💊 Suivi Ritaline</h1>
+                <span class="version-badge">V2 PRO</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Changer de thème">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('entry')">✏️ Nouvelle Entrée</button>
+            <button class="nav-tab" onclick="switchTab('history')">📝 Historique</button>
+            <button class="nav-tab" onclick="switchTab('analytics')">📈 Analyses</button>
+            <button class="nav-tab" onclick="switchTab('calendar')">📅 Calendrier</button>
+            <button class="nav-tab" onclick="switchTab('export')">💾 Import/Export</button>
+            <button class="nav-tab" onclick="switchTab('settings')">⚙️ Paramètres</button>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📊 Vue d'ensemble</h2>
+                        <select id="dashboard-period" onchange="updateDashboard()">
+                            <option value="7">7 derniers jours</option>
+                            <option value="30" selected>30 derniers jours</option>
+                            <option value="90">90 derniers jours</option>
+                            <option value="all">Tout</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid-4">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-total-doses">0</div>
+                            <div class="stat-label">Total de prises</div>
+                            <div class="stat-change" id="stat-total-change"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-avg-dose">0mg</div>
+                            <div class="stat-label">Dose moyenne/jour</div>
+                            <div class="stat-change" id="stat-avg-change"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-avg-focus">0</div>
+                            <div class="stat-label">Focus moyen</div>
+                            <div class="stat-change" id="stat-focus-change"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-days-no-effects">0</div>
+                            <div class="stat-label">Jours sans effets</div>
+                            <div class="stat-change" id="stat-effects-change"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">🔍 Insights & Patterns</h2>
+                    <div id="insights-container"></div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">⚠️ Alertes</h2>
+                    <div id="alerts-container"></div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="chart-container">
+                        <h3>📈 Évolution du dosage (30j)</h3>
+                        <svg id="dose-trend-chart" viewBox="0 0 500 200"></svg>
+                    </div>
+                    <div class="chart-container">
+                        <h3>🎯 Corrélation Dose vs Focus</h3>
+                        <svg id="correlation-chart" viewBox="0 0 500 200"></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Entry Tab -->
+            <div id="tab-entry" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h2 class="card-title">✏️ Nouvelle Entrée</h2>
+                        
+                        <div class="form-group">
+                            <label for="entry-date">Date</label>
+                            <input type="date" id="entry-date">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="entry-context">Contexte de la journée</label>
+                            <select id="entry-context">
+                                <option value="">Aucun</option>
+                                <option value="work">Travail</option>
+                                <option value="weekend">Weekend</option>
+                                <option value="exam">Examen</option>
+                                <option value="sport">Sport</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Prises de la journée</label>
+                            <div id="doses-container"></div>
+                            <button class="btn btn-secondary" onclick="addDoseEntry()" style="width: 100%; margin-top: 1rem;">+ Ajouter une prise</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="crash-slider">Crash / Comedown <span class="slider-value" id="crash-value">0</span>/10</label>
+                            <div class="slider-container">
+                                <input type="range" id="crash-slider" min="0" max="10" value="0" oninput="updateSliderValue('crash'); autoSave()">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Effets Secondaires (0-10)</label>
+                            <div class="side-effects-grid">
+                                <div class="side-effect-item">
+                                    <label>
+                                        Maux de tête
+                                        <span class="slider-value" id="headache-value">0</span>
+                                    </label>
+                                    <input type="range" id="headache-slider" min="0" max="10" value="0" oninput="updateSliderValue('headache'); autoSave()">
+                                </div>
+                                <div class="side-effect-item">
+                                    <label>
+                                        Insomnie
+                                        <span class="slider-value" id="insomnia-value">0</span>
+                                    </label>
+                                    <input type="range" id="insomnia-slider" min="0" max="10" value="0" oninput="updateSliderValue('insomnia'); autoSave()">
+                                </div>
+                                <div class="side-effect-item">
+                                    <label>
+                                        Perte appétit
+                                        <span class="slider-value" id="appetite-value">0</span>
+                                    </label>
+                                    <input type="range" id="appetite-slider" min="0" max="10" value="0" oninput="updateSliderValue('appetite'); autoSave()">
+                                </div>
+                                <div class="side-effect-item">
+                                    <label>
+                                        Anxiété
+                                        <span class="slider-value" id="anxiety-value">0</span>
+                                    </label>
+                                    <input type="range" id="anxiety-slider" min="0" max="10" value="0" oninput="updateSliderValue('anxiety'); autoSave()">
+                                </div>
+                                <div class="side-effect-item">
+                                    <label>
+                                        Nausées
+                                        <span class="slider-value" id="nausea-value">0</span>
+                                    </label>
+                                    <input type="range" id="nausea-slider" min="0" max="10" value="0" oninput="updateSliderValue('nausea'); autoSave()">
+                                </div>
+                                <div class="side-effect-item">
+                                    <label>
+                                        Cœur accéléré
+                                        <span class="slider-value" id="heartrate-value">0</span>
+                                    </label>
+                                    <input type="range" id="heartrate-slider" min="0" max="10" value="0" oninput="updateSliderValue('heartrate'); autoSave()">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="resetForm()">Réinitialiser</button>
+                            <button class="btn btn-primary" onclick="saveEntry()">💾 Enregistrer</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2 class="card-title">📝 Suivi additionnel</h2>
+                        
+                        <div class="form-group">
+                            <label for="entry-weight">Poids (kg) - optionnel</label>
+                            <input type="number" id="entry-weight" step="0.1" placeholder="70.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="entry-blood-pressure">Tension (mmHg) - optionnel</label>
+                            <input type="text" id="entry-blood-pressure" placeholder="120/80">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="entry-sleep">Heures de sommeil - optionnel</label>
+                            <input type="number" id="entry-sleep" step="0.5" min="0" max="24" placeholder="7.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Notes de la journée</label>
+                            <textarea id="notes" placeholder="Observations, ressenti général..." oninput="autoSave()"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div id="tab-history" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📝 Historique</h2>
+                        <button class="btn btn-success" onclick="exportToCSV()">📥 Export Excel</button>
+                    </div>
+                    
+                    <div class="search-container">
+                        <input type="text" class="search-input" id="search-history" placeholder="🔍 Rechercher dans l'historique..." oninput="filterHistory()">
+                        <div class="filter-group">
+                            <select id="filter-context" onchange="filterHistory()">
+                                <option value="">Tous les contextes</option>
+                                <option value="work">Travail</option>
+                                <option value="weekend">Weekend</option>
+                                <option value="exam">Examen</option>
+                                <option value="sport">Sport</option>
+                            </select>
+                            <select id="filter-sort" onchange="filterHistory()">
+                                <option value="date-desc">Plus récent d'abord</option>
+                                <option value="date-asc">Plus ancien d'abord</option>
+                                <option value="dose-desc">Dose décroissante</option>
+                                <option value="dose-asc">Dose croissante</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Contexte</th>
+                                    <th>Dose totale</th>
+                                    <th>Focus moy.</th>
+                                    <th>Effets</th>
+                                    <th>Crash</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-body">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Aucune donnée enregistrée</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Commencez par ajouter votre première entrée</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analytics Tab -->
+            <div id="tab-analytics" class="tab-content">
+                <div class="grid-2">
+                    <div class="chart-container">
+                        <h3>📈 Focus moyen (30 derniers jours)</h3>
+                        <svg id="focus-chart" viewBox="0 0 500 200"></svg>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>📉 Intensité du crash (30 derniers jours)</h3>
+                        <svg id="crash-chart" viewBox="0 0 500 200"></svg>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>📊 Effets secondaires cumulés</h3>
+                    <svg id="effects-chart" viewBox="0 0 500 300"></svg>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>⏰ Timeline journalière - Effet dans le temps</h3>
+                    <svg id="timeline-chart" viewBox="0 0 800 200"></svg>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">📊 Comparaison de périodes</h2>
+                    <div class="grid-2">
+                        <div>
+                            <label>Période 1</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="date" id="period1-start">
+                                <input type="date" id="period1-end">
+                            </div>
+                        </div>
+                        <div>
+                            <label>Période 2</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="date" id="period2-start">
+                                <input type="date" id="period2-end">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="comparePeriods()" style="margin-top: 1rem;">Comparer</button>
+                    <div id="comparison-results" style="margin-top: 1.5rem;"></div>
+                </div>
+            </div>
+            
+            <!-- Calendar Tab -->
+            <div id="tab-calendar" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📅 Vue Calendrier</h2>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-secondary" onclick="previousMonth()">← Mois précédent</button>
+                            <span id="current-month-year" style="line-height: 2.5rem; font-weight: 600;"></span>
+                            <button class="btn btn-secondary" onclick="nextMonth()">Mois suivant →</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 1rem; text-align: center; font-weight: 600; color: var(--text-secondary);">
+                        <div>Lun</div>
+                        <div>Mar</div>
+                        <div>Mer</div>
+                        <div>Jeu</div>
+                        <div>Ven</div>
+                        <div>Sam</div>
+                        <div>Dim</div>
+                    </div>
+                    
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">🔥 Heatmap - Intensité des effets</h2>
+                    <canvas id="heatmap-canvas" style="width: 100%; height: 300px;"></canvas>
+                </div>
+            </div>
+            
+            <!-- Export Tab -->
+            <div id="tab-export" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h2 class="card-title">📥 Importer des données</h2>
+                        
+                        <div class="alert alert-info">
+                            <span>ℹ️</span>
+                            <div>
+                                <strong>Format accepté :</strong> Fichiers CSV ou JSON. Les données importées remplaceront ou fusionneront avec vos données existantes.
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="import-file">Sélectionner un fichier</label>
+                            <input type="file" id="import-file" accept=".csv,.json">
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="importData()">📤 Importer</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h2 class="card-title">📤 Exporter des données</h2>
+                        
+                        <div class="btn-group" style="flex-direction: column;">
+                            <button class="btn btn-success" onclick="exportToCSV()">
+                                📊 Export Excel (CSV)
+                            </button>
+                            <button class="btn btn-info" onclick="exportToPDF()">
+                                📄 Export PDF (Rapport médical)
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportToJSON()">
+                                💾 Backup complet (JSON)
+                            </button>
+                        </div>
+                        
+                        <div class="alert alert-success" style="margin-top: 1.5rem;">
+                            <span>✅</span>
+                            <div>
+                                <strong>Sauvegarde automatique :</strong> Toutes vos données sont sauvegardées automatiquement dans votre navigateur.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content">
+                <div class="card">
+                    <h2 class="card-title">⚙️ Paramètres</h2>
+                    
+                    <div class="form-group">
+                        <label>Thème de l'interface</label>
+                        <select id="theme-select" onchange="changeThemeFromSelect()">
+                            <option value="dark">Sombre</option>
+                            <option value="light">Clair</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prescription-date">Date de début de prescription</label>
+                        <input type="date" id="prescription-date" onchange="savePrescriptionDate()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="prescription-duration">Durée de l'ordonnance (jours)</label>
+                        <input type="number" id="prescription-duration" value="30" min="1" onchange="savePrescriptionDate()">
+                        <div id="prescription-alert" style="margin-top: 1rem;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="auto-save-toggle" checked onchange="toggleAutoSave()">
+                            Sauvegarde automatique
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="show-insights-toggle" checked onchange="toggleInsights()">
+                            Afficher les insights
+                        </label>
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;">
+                    
+                    <div class="alert alert-danger">
+                        <span>⚠️</span>
+                        <div>
+                            <strong>Zone dangereuse :</strong> Les actions ci-dessous sont irréversibles.
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-danger" onclick="confirmDeleteAll()">🗑️ Supprimer toutes les données</button>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">ℹ️ À propos</h2>
+                    <p><strong>Version :</strong> 2.0 Pro</p>
+                    <p><strong>Dernière mise à jour :</strong> Février 2026</p>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">
+                        Cette application est un outil de suivi personnel pour la prise de Méthylphénidate (Ritaline). 
+                        Les données sont stockées localement dans votre navigateur et ne sont jamais envoyées à un serveur externe.
+                    </p>
+                    <p style="margin-top: 1rem; color: var(--warning);">
+                        ⚠️ Cette application ne remplace pas un avis médical professionnel. Consultez toujours votre médecin.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Auto-save indicator -->
+    <div class="auto-save-indicator" id="auto-save-indicator">
+        <span>✓</span>
+        <span>Sauvegarde automatique</span>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Confirmation de suppression</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">×</button>
+            </div>
+            <p>Êtes-vous sûr de vouloir supprimer <strong id="delete-target"></strong> ? Cette action est irréversible.</p>
+            <div class="btn-group" style="margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Annuler</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // État global
+        let currentEditDate = null;
+        let currentMonth = new Date();
+        let currentDeleteAction = null;
+        let autoSaveEnabled = true;
+        let autoSaveTimeout = null;
+        let filteredData = [];
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entry-date').value = today;
+            addDoseEntry();
+            loadHistory();
+            updateAllCharts();
+            updateDashboard();
+            renderCalendar();
+            checkPrescriptionAlert();
+            loadSettings();
+            
+            // Écouter les changements de date
+            document.getElementById('entry-date').addEventListener('change', function() {
+                loadDataForDate(this.value);
+            });
+            
+            // Service Worker pour PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZXZlbnQpIHsKICBldmVudC53YWl0VW50aWwoCiAgICBjYWNoZXMub3BlbigndjEnKS50aGVuKGZ1bmN0aW9uKGNhY2hlKSB7CiAgICAgIHJldHVybiBjYWNoZS5hZGRBbGwoWycvJ10pOwogICAgfSkKICApOwp9KTs=');
+            }
+        });
+        
+        // Gestion des onglets
+        function switchTab(tabName) {
+            // Masquer tous les onglets
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Afficher l'onglet sélectionné
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Rafraîchir selon l'onglet
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'analytics') updateAllCharts();
+            if (tabName === 'calendar') renderCalendar();
+        }
+        
+        // Thème
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            document.getElementById('theme-icon').textContent = newTheme === 'light' ? '☀️' : '🌙';
+            document.getElementById('theme-select').value = newTheme;
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        function changeThemeFromSelect() {
+            const theme = document.getElementById('theme-select').value;
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('theme-icon').textContent = theme === 'light' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        }
+        
+        function loadSettings() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('theme-select').value = theme;
+            document.getElementById('theme-icon').textContent = theme === 'light' ? '☀️' : '🌙';
+            
+            const prescriptionDate = localStorage.getItem('prescriptionDate');
+            if (prescriptionDate) {
+                document.getElementById('prescription-date').value = prescriptionDate;
+            }
+            
+            const prescriptionDuration = localStorage.getItem('prescriptionDuration');
+            if (prescriptionDuration) {
+                document.getElementById('prescription-duration').value = prescriptionDuration;
+            }
+        }
+        
+        // Auto-save
+        function autoSave() {
+            if (!autoSaveEnabled) return;
+            
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                showAutoSaveIndicator();
+            }, 2000);
+        }
+        
+        function showAutoSaveIndicator() {
+            const indicator = document.getElementById('auto-save-indicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        function toggleAutoSave() {
+            autoSaveEnabled = document.getElementById('auto-save-toggle').checked;
+        }
+        
+        function toggleInsights() {
+            updateDashboard();
+        }
+        
+        // Slider values
+        function updateSliderValue(type) {
+            const slider = document.getElementById(type + '-slider');
+            const valueSpan = document.getElementById(type + '-value');
+            valueSpan.textContent = slider.value;
+        }
+        
+        // Dose entries
+        function addDoseEntry() {
+            const container = document.getElementById('doses-container');
+            
+            const doseDiv = document.createElement('div');
+            doseDiv.className = 'dose-entry';
+            doseDiv.innerHTML = `
+                <button class="remove-dose" onclick="removeDoseEntry(this)">×</button>
+                <div class="dose-entry-grid">
+                    <div>
+                        <label>Heure</label>
+                        <input type="time" class="dose-time" required oninput="autoSave()">
+                    </div>
+                    <div>
+                        <label>Dosage (mg)</label>
+                        <input type="number" class="dose-amount" min="0" step="5" placeholder="10" required oninput="autoSave()">
+                    </div>
+                    <div>
+                        <label>Focus <span class="slider-value dose-focus-value">5</span>/10</label>
+                        <input type="range" class="dose-focus" min="1" max="10" value="5" oninput="this.previousElementSibling.querySelector('.dose-focus-value').textContent = this.value; autoSave()">
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(doseDiv);
+        }
+        
+        function removeDoseEntry(btn) {
+            const container = document.getElementById('doses-container');
+            if (container.children.length > 1) {
+                btn.parentElement.remove();
+            } else {
+                alert('Vous devez avoir au moins une prise');
+            }
+        }
+        
+        // Load data for date
+        function loadDataForDate(date) {
+            const data = getData();
+            const dayEntries = data.filter(entry => entry.date === date);
+            
+            if (dayEntries.length > 0) {
+                currentEditDate = date;
+                
+                const container = document.getElementById('doses-container');
+                container.innerHTML = '';
+                
+                dayEntries.forEach(entry => {
+                    addDoseEntry();
+                    const lastDose = container.lastElementChild;
+                    lastDose.querySelector('.dose-time').value = entry.time;
+                    lastDose.querySelector('.dose-amount').value = entry.dose;
+                    lastDose.querySelector('.dose-focus').value = entry.focus;
+                    lastDose.querySelector('.dose-focus-value').textContent = entry.focus;
+                });
+                
+                const firstEntry = dayEntries[0];
+                document.getElementById('entry-context').value = firstEntry.context || '';
+                document.getElementById('crash-slider').value = firstEntry.crash || 0;
+                updateSliderValue('crash');
+                
+                document.getElementById('headache-slider').value = firstEntry.effects.headache || 0;
+                document.getElementById('insomnia-slider').value = firstEntry.effects.insomnia || 0;
+                document.getElementById('appetite-slider').value = firstEntry.effects.appetite || 0;
+                document.getElementById('anxiety-slider').value = firstEntry.effects.anxiety || 0;
+                document.getElementById('nausea-slider').value = firstEntry.effects.nausea || 0;
+                document.getElementById('heartrate-slider').value = firstEntry.effects.heartrate || 0;
+                
+                updateSliderValue('headache');
+                updateSliderValue('insomnia');
+                updateSliderValue('appetite');
+                updateSliderValue('anxiety');
+                updateSliderValue('nausea');
+                updateSliderValue('heartrate');
+                
+                document.getElementById('notes').value = firstEntry.notes || '';
+                document.getElementById('entry-weight').value = firstEntry.weight || '';
+                document.getElementById('entry-blood-pressure').value = firstEntry.bloodPressure || '';
+                document.getElementById('entry-sleep').value = firstEntry.sleep || '';
+            } else {
+                currentEditDate = null;
+                resetForm();
+            }
+        }
+        
+        // Save entry
+        function saveEntry() {
+            const date = document.getElementById('entry-date').value;
+            
+            if (!date) {
+                alert('Veuillez sélectionner une date');
+                return;
+            }
+            
+            const doseEntries = document.querySelectorAll('.dose-entry');
+            const doses = [];
+            const seenTimes = new Set();
+            
+            for (let entry of doseEntries) {
+                const time = entry.querySelector('.dose-time').value;
+                const amount = entry.querySelector('.dose-amount').value;
+                const focus = entry.querySelector('.dose-focus').value;
+                
+                if (!time || !amount) {
+                    alert('Veuillez remplir tous les champs de dose (heure et dosage)');
+                    return;
+                }
+                
+                if (seenTimes.has(time)) {
+                    alert('Vous ne pouvez pas avoir deux prises à la même heure');
+                    return;
+                }
+                seenTimes.add(time);
+                
+                doses.push({
+                    time: time,
+                    dose: parseInt(amount),
+                    focus: parseInt(focus)
+                });
+            }
+            
+            const effects = {
+                headache: parseInt(document.getElementById('headache-slider').value),
+                insomnia: parseInt(document.getElementById('insomnia-slider').value),
+                appetite: parseInt(document.getElementById('appetite-slider').value),
+                anxiety: parseInt(document.getElementById('anxiety-slider').value),
+                nausea: parseInt(document.getElementById('nausea-slider').value),
+                heartrate: parseInt(document.getElementById('heartrate-slider').value)
+            };
+            
+            const crash = parseInt(document.getElementById('crash-slider').value);
+            const notes = document.getElementById('notes').value;
+            const context = document.getElementById('entry-context').value;
+            const weight = document.getElementById('entry-weight').value;
+            const bloodPressure = document.getElementById('entry-blood-pressure').value;
+            const sleep = document.getElementById('entry-sleep').value;
+            
+            let data = getData();
+            data = data.filter(entry => entry.date !== date);
+            
+            doses.forEach(dose => {
+                data.push({
+                    date: date,
+                    time: dose.time,
+                    dose: dose.dose,
+                    focus: dose.focus,
+                    crash: crash,
+                    effects: effects,
+                    notes: notes,
+                    context: context,
+                    weight: weight ? parseFloat(weight) : null,
+                    bloodPressure: bloodPressure || null,
+                    sleep: sleep ? parseFloat(sleep) : null
+                });
+            });
+            
+            saveData(data);
+            loadHistory();
+            updateAllCharts();
+            updateDashboard();
+            renderCalendar();
+            
+            alert('✅ Données enregistrées avec succès !');
+        }
+        
+        // Reset form
+        function resetForm() {
+            const container = document.getElementById('doses-container');
+            container.innerHTML = '';
+            addDoseEntry();
+            
+            document.getElementById('entry-context').value = '';
+            document.getElementById('crash-slider').value = 0;
+            updateSliderValue('crash');
+            
+            const effectSliders = ['headache', 'insomnia', 'appetite', 'anxiety', 'nausea', 'heartrate'];
+            effectSliders.forEach(effect => {
+                document.getElementById(effect + '-slider').value = 0;
+                updateSliderValue(effect);
+            });
+            
+            document.getElementById('notes').value = '';
+            document.getElementById('entry-weight').value = '';
+            document.getElementById('entry-blood-pressure').value = '';
+            document.getElementById('entry-sleep').value = '';
+            currentEditDate = null;
+        }
+        
+        // Load history
+        function loadHistory() {
+            filteredData = getData();
+            filterHistory();
+        }
+        
+        function filterHistory() {
+            const searchTerm = document.getElementById('search-history').value.toLowerCase();
+            const contextFilter = document.getElementById('filter-context').value;
+            const sortBy = document.getElementById('filter-sort').value;
+            
+            let data = getData();
+            
+            // Filtrer par contexte
+            if (contextFilter) {
+                data = data.filter(entry => entry.context === contextFilter);
+            }
+            
+            // Filtrer par recherche
+            if (searchTerm) {
+                data = data.filter(entry => {
+                    return entry.date.includes(searchTerm) || 
+                           (entry.notes && entry.notes.toLowerCase().includes(searchTerm));
+                });
+            }
+            
+            const tbody = document.getElementById('history-body');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Grouper par date
+            const groupedByDate = {};
+            data.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = [];
+                }
+                groupedByDate[entry.date].push(entry);
+            });
+            
+            // Trier
+            let sortedDates = Object.keys(groupedByDate).sort();
+            
+            if (sortBy === 'date-desc') {
+                sortedDates = sortedDates.reverse();
+            } else if (sortBy === 'dose-desc' || sortBy === 'dose-asc') {
+                sortedDates.sort((a, b) => {
+                    const totalA = groupedByDate[a].reduce((sum, e) => sum + e.dose, 0);
+                    const totalB = groupedByDate[b].reduce((sum, e) => sum + e.dose, 0);
+                    return sortBy === 'dose-desc' ? totalB - totalA : totalA - totalB;
+                });
+            }
+            
+            tbody.innerHTML = '';
+            
+            sortedDates.forEach(date => {
+                const entries = groupedByDate[date];
+                
+                const totalDose = entries.reduce((sum, e) => sum + e.dose, 0);
+                const avgFocus = (entries.reduce((sum, e) => sum + e.focus, 0) / entries.length).toFixed(1);
+                const crash = entries[0].crash || 0;
+                const effects = entries[0].effects;
+                const notes = entries[0].notes || '';
+                const context = entries[0].context || '';
+                
+                const effectsList = [];
+                for (let [key, value] of Object.entries(effects)) {
+                    if (value > 0) {
+                        effectsList.push({ name: key, value: value });
+                    }
+                }
+                effectsList.sort((a, b) => b.value - a.value);
+                const topEffects = effectsList.slice(0, 2);
+                
+                const row = document.createElement('tr');
+                row.onclick = () => toggleDetails(date);
+                row.innerHTML = `
+                    <td><strong>${formatDate(date)}</strong></td>
+                    <td>${context ? `<span class="tag tag-${context}">${formatContext(context)}</span>` : '-'}</td>
+                    <td><span class="tag tag-low">${totalDose} mg</span></td>
+                    <td><span class="tag tag-medium">${avgFocus}/10</span></td>
+                    <td>${topEffects.map(e => `<span class="tag ${getSeverityClass(e.value)}">${formatEffectName(e.name)} ${e.value}/10</span>`).join('')}</td>
+                    <td>
+                        <div class="crash-bar-container">
+                            <div class="crash-bar" style="width: ${crash * 10}%"></div>
+                        </div>
+                    </td>
+                    <td><span class="notes-preview">${notes}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); editDate('${date}')" style="padding: 0.5rem;">✏️</button>
+                        <button class="btn btn-danger" onclick="event.stopPropagation(); deleteDate('${date}')" style="padding: 0.5rem; margin-left: 0.5rem;">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                
+                const detailRow = document.createElement('tr');
+                detailRow.className = 'detail-row';
+                detailRow.id = `detail-${date}`;
+                detailRow.innerHTML = `
+                    <td colspan="8">
+                        <div class="detail-content">
+                            <h3 style="margin-bottom: 1rem; color: var(--focus-color);">Détails - ${formatDate(date)}</h3>
+                            <div class="detail-doses">
+                                ${entries.map((entry, idx) => `
+                                    <div class="detail-dose-card">
+                                        <div style="font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 600;">
+                                            ${entry.time}
+                                        </div>
+                                        <div>
+                                            <div><strong>${entry.dose} mg</strong> - Focus: <span style="color: var(--focus-color);">${entry.focus}/10</span></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ${entries[0].weight ? `<p style="margin-top: 1rem;"><strong>Poids:</strong> ${entries[0].weight} kg</p>` : ''}
+                            ${entries[0].bloodPressure ? `<p><strong>Tension:</strong> ${entries[0].bloodPressure} mmHg</p>` : ''}
+                            ${entries[0].sleep ? `<p><strong>Sommeil:</strong> ${entries[0].sleep}h</p>` : ''}
+                            ${notes ? `<div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--crash-color);"><strong>Notes:</strong> ${notes}</div>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(detailRow);
+            });
+        }
+        
+        function toggleDetails(date) {
+            const detailRow = document.getElementById(`detail-${date}`);
+            detailRow.classList.toggle('active');
+        }
+        
+        function editDate(date) {
+            document.getElementById('entry-date').value = date;
+            loadDataForDate(date);
+            switchTab('entry');
+            document.querySelector('.nav-tab:nth-child(2)').click();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function deleteDate(date) {
+            currentDeleteAction = () => {
+                let data = getData();
+                data = data.filter(entry => entry.date !== date);
+                saveData(data);
+                loadHistory();
+                updateAllCharts();
+                updateDashboard();
+                renderCalendar();
+                closeDeleteModal();
+            };
+            
+            document.getElementById('delete-target').textContent = `toutes les données du ${formatDate(date)}`;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('active');
+            currentDeleteAction = null;
+        }
+        
+        function confirmDelete() {
+            if (currentDeleteAction) {
+                currentDeleteAction();
+            }
+        }
+        
+        function confirmDeleteAll() {
+            currentDeleteAction = () => {
+                localStorage.removeItem('ritalineData');
+                loadHistory();
+                updateAllCharts();
+                updateDashboard();
+                renderCalendar();
+                closeDeleteModal();
+                alert('Toutes les données ont été supprimées');
+            };
+            
+            document.getElementById('delete-target').textContent = 'TOUTES LES DONNÉES';
+            document.getElementById('delete-modal').classList.add('active');
+        }
+        
+        // Format functions
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('fr-FR', options);
+        }
+        
+        function formatEffectName(name) {
+            const names = {
+                headache: 'Maux tête',
+                insomnia: 'Insomnie',
+                appetite: 'Appétit',
+                anxiety: 'Anxiété',
+                nausea: 'Nausées',
+                heartrate: 'Cœur'
+            };
+            return names[name] || name;
+        }
+        
+        function formatContext(context) {
+            const contexts = {
+                work: 'Travail',
+                weekend: 'Weekend',
+                exam: 'Examen',
+                sport: 'Sport'
+            };
+            return contexts[context] || context;
+        }
+        
+        function getSeverityClass(value) {
+            if (value <= 3) return 'tag-low';
+            if (value <= 7) return 'tag-medium';
+            return 'tag-high';
+        }
+        
+        // Dashboard
+        function updateDashboard() {
+            const period = parseInt(document.getElementById('dashboard-period').value);
+            const data = getData();
+            
+            if (data.length === 0) {
+                document.getElementById('stat-total-doses').textContent = '0';
+                document.getElementById('stat-avg-dose').textContent = '0mg';
+                document.getElementById('stat-avg-focus').textContent = '0';
+                document.getElementById('stat-days-no-effects').textContent = '0';
+                return;
+            }
+            
+            // Filtrer par période
+            let filteredData = data;
+            if (period !== 'all') {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - period);
+                const cutoffStr = cutoffDate.toISOString().split('T')[0];
+                filteredData = data.filter(entry => entry.date >= cutoffStr);
+            }
+            
+            // Calculer les stats
+            const totalDoses = filteredData.length;
+            const uniqueDates = new Set(filteredData.map(e => e.date)).size;
+            const totalMg = filteredData.reduce((sum, e) => sum + e.dose, 0);
+            const avgDosePerDay = uniqueDates > 0 ? (totalMg / uniqueDates).toFixed(0) : 0;
+            const avgFocus = (filteredData.reduce((sum, e) => sum + e.focus, 0) / totalDoses).toFixed(1);
+            
+            // Jours sans effets
+            const groupedByDate = {};
+            filteredData.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = entry;
+                }
+            });
+            
+            let daysNoEffects = 0;
+            Object.values(groupedByDate).forEach(entry => {
+                const hasEffects = Object.values(entry.effects).some(v => v > 0);
+                if (!hasEffects && entry.crash === 0) {
+                    daysNoEffects++;
+                }
+            });
+            
+            document.getElementById('stat-total-doses').textContent = totalDoses;
+            document.getElementById('stat-avg-dose').textContent = avgDosePerDay + 'mg';
+            document.getElementById('stat-avg-focus').textContent = avgFocus;
+            document.getElementById('stat-days-no-effects').textContent = daysNoEffects;
+            
+            // Générer insights
+            generateInsights(filteredData, groupedByDate);
+            
+            // Générer alertes
+            generateAlerts(filteredData, groupedByDate);
+            
+            // Charts dashboard
+            updateDoseTrendChart();
+            updateCorrelationChart();
+        }
+        
+        function generateInsights(data, groupedByDate) {
+            const container = document.getElementById('insights-container');
+            
+            if (!document.getElementById('show-insights-toggle').checked) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Insights désactivés dans les paramètres</p>';
+                return;
+            }
+            
+            if (data.length < 7) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">Pas assez de données pour générer des insights (minimum 7 jours)</p>';
+                return;
+            }
+            
+            const insights = [];
+            
+            // Pattern: Dose vs Crash
+            const dates = Object.keys(groupedByDate).sort();
+            let highDoseDays = 0;
+            let highCrashOnHighDose = 0;
+            
+            dates.forEach(date => {
+                const entries = data.filter(e => e.date === date);
+                const totalDose = entries.reduce((sum, e) => sum + e.dose, 0);
+                const crash = entries[0].crash;
+                
+                if (totalDose > 30) {
+                    highDoseDays++;
+                    if (crash > 6) {
+                        highCrashOnHighDose++;
+                    }
+                }
+            });
+            
+            if (highDoseDays > 0) {
+                const percentage = ((highCrashOnHighDose / highDoseDays) * 100).toFixed(0);
+                if (percentage > 50) {
+                    insights.push({
+                        title: '⚠️ Pattern détecté : Dose élevée → Crash',
+                        text: `${percentage}% de vos journées avec une dose >30mg ont un crash intense (>6/10). Envisagez de fractionner davantage vos prises.`
+                    });
+                }
+            }
+            
+            // Pattern: Contexte vs Performance
+            const contextStats = {};
+            dates.forEach(date => {
+                const entries = data.filter(e => e.date === date);
+                const context = entries[0].context;
+                if (context) {
+                    if (!contextStats[context]) {
+                        contextStats[context] = { focus: [], count: 0 };
+                    }
+                    const avgFocus = entries.reduce((sum, e) => sum + e.focus, 0) / entries.length;
+                    contextStats[context].focus.push(avgFocus);
+                    contextStats[context].count++;
+                }
+            });
+            
+            let bestContext = null;
+            let bestFocus = 0;
+            for (let [context, stats] of Object.entries(contextStats)) {
+                const avg = stats.focus.reduce((sum, f) => sum + f, 0) / stats.focus.length;
+                if (avg > bestFocus) {
+                    bestFocus = avg;
+                    bestContext = context;
+                }
+            }
+            
+            if (bestContext) {
+                insights.push({
+                    title: '📊 Meilleur contexte identifié',
+                    text: `Votre focus est ${bestFocus.toFixed(1)}/10 en moyenne en contexte "${formatContext(bestContext)}". C'est votre environnement optimal.`
+                });
+            }
+            
+            // Tendance dosage
+            const recentDates = dates.slice(-14);
+            const oldDates = dates.slice(-28, -14);
+            
+            if (recentDates.length > 0 && oldDates.length > 0) {
+                const recentAvg = recentDates.reduce((sum, date) => {
+                    const entries = data.filter(e => e.date === date);
+                    return sum + entries.reduce((s, e) => s + e.dose, 0);
+                }, 0) / recentDates.length;
+                
+                const oldAvg = oldDates.reduce((sum, date) => {
+                    const entries = data.filter(e => e.date === date);
+                    return sum + entries.reduce((s, e) => s + e.dose, 0);
+                }, 0) / oldDates.length;
+                
+                const increase = ((recentAvg - oldAvg) / oldAvg * 100).toFixed(0);
+                
+                if (increase > 20) {
+                    insights.push({
+                        title: '⚠️ Augmentation du dosage détectée',
+                        text: `Votre dosage quotidien a augmenté de ${increase}% ces 2 dernières semaines (${oldAvg.toFixed(0)}mg → ${recentAvg.toFixed(0)}mg). Cela pourrait indiquer une tolérance. Consultez votre médecin.`
+                    });
+                } else if (increase < -20) {
+                    insights.push({
+                        title: '✅ Réduction du dosage',
+                        text: `Votre dosage a diminué de ${Math.abs(increase)}% ces 2 dernières semaines. Excellent progrès !`
+                    });
+                }
+            }
+            
+            // Afficher
+            container.innerHTML = insights.length > 0 
+                ? insights.map(i => `
+                    <div class="insight-box">
+                        <div class="insight-title">${i.title}</div>
+                        <div class="insight-text">${i.text}</div>
+                    </div>
+                `).join('')
+                : '<p style="color: var(--text-secondary);">Aucun pattern particulier détecté pour le moment</p>';
+        }
+        
+        function generateAlerts(data, groupedByDate) {
+            const container = document.getElementById('alerts-container');
+            const alerts = [];
+            
+            // Alerte : 3 jours consécutifs de crash élevé
+            const dates = Object.keys(groupedByDate).sort().reverse().slice(0, 3);
+            if (dates.length === 3) {
+                const allHighCrash = dates.every(date => groupedByDate[date].crash > 7);
+                if (allHighCrash) {
+                    alerts.push({
+                        type: 'danger',
+                        text: '⚠️ Vous avez eu un crash intense (>7/10) pendant 3 jours consécutifs. Consultez votre médecin.'
+                    });
+                }
+            }
+            
+            // Alerte : Dose quotidienne >60mg
+            const today = new Date().toISOString().split('T')[0];
+            const todayEntries = data.filter(e => e.date === today);
+            if (todayEntries.length > 0) {
+                const totalToday = todayEntries.reduce((sum, e) => sum + e.dose, 0);
+                if (totalToday > 60) {
+                    alerts.push({
+                        type: 'warning',
+                        text: `⚠️ Dose quotidienne élevée aujourd'hui (${totalToday}mg). La dose maximale recommandée est généralement de 60mg/jour.`
+                    });
+                }
+            }
+            
+            container.innerHTML = alerts.length > 0
+                ? alerts.map(a => `
+                    <div class="alert alert-${a.type}">
+                        <div>${a.text}</div>
+                    </div>
+                `).join('')
+                : '<div class="alert alert-success"><span>✅</span><div>Aucune alerte. Tout semble normal !</div></div>';
+        }
+        
+        // Charts
+        function updateAllCharts() {
+            updateFocusChart();
+            updateCrashChart();
+            updateEffectsChart();
+            updateTimelineChart();
+        }
+        
+        function updateFocusChart() {
+            const data = getData();
+            const svg = document.getElementById('focus-chart');
+            
+            if (data.length === 0) {
+                svg.innerHTML = '<text x="250" y="100" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Aucune donnée</text>';
+                return;
+            }
+            
+            const groupedByDate = {};
+            data.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = [];
+                }
+                groupedByDate[entry.date].push(entry.focus);
+            });
+            
+            const dates = Object.keys(groupedByDate).sort().slice(-30);
+            const values = dates.map(date => {
+                const focuses = groupedByDate[date];
+                return focuses.reduce((sum, f) => sum + f, 0) / focuses.length;
+            });
+            
+            drawLineChart(svg, values, '#3b82f6', 10);
+        }
+        
+        function updateCrashChart() {
+            const data = getData();
+            const svg = document.getElementById('crash-chart');
+            
+            if (data.length === 0) {
+                svg.innerHTML = '<text x="250" y="100" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Aucune donnée</text>';
+                return;
+            }
+            
+            const groupedByDate = {};
+            data.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = entry.crash || 0;
+                }
+            });
+            
+            const dates = Object.keys(groupedByDate).sort().slice(-30);
+            const values = dates.map(date => groupedByDate[date]);
+            
+            drawLineChart(svg, values, '#8b5cf6', 10);
+        }
+        
+        function updateEffectsChart() {
+            const data = getData();
+            const svg = document.getElementById('effects-chart');
+            
+            if (data.length === 0) {
+                svg.innerHTML = '<text x="250" y="150" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Aucune donnée</text>';
+                return;
+            }
+            
+            const totals = {
+                headache: 0,
+                insomnia: 0,
+                appetite: 0,
+                anxiety: 0,
+                nausea: 0,
+                heartrate: 0
+            };
+            
+            const processed = new Set();
+            data.forEach(entry => {
+                if (!processed.has(entry.date)) {
+                    processed.add(entry.date);
+                    for (let [key, value] of Object.entries(entry.effects)) {
+                        totals[key] += value;
+                    }
+                }
+            });
+            
+            const effects = [
+                { name: 'Maux tête', value: totals.headache },
+                { name: 'Insomnie', value: totals.insomnia },
+                { name: 'Appétit', value: totals.appetite },
+                { name: 'Anxiété', value: totals.anxiety },
+                { name: 'Nausées', value: totals.nausea },
+                { name: 'Cœur', value: totals.heartrate }
+            ];
+            
+            drawBarChart(svg, effects);
+        }
+        
+        function updateTimelineChart() {
+            const data = getData();
+            const svg = document.getElementById('timeline-chart');
+            
+            if (data.length === 0) {
+                svg.innerHTML = '<text x="400" y="100" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Aucune donnée</text>';
+                return;
+            }
+            
+            // Prendre le dernier jour avec données
+            const dates = [...new Set(data.map(e => e.date))].sort().reverse();
+            if (dates.length === 0) return;
+            
+            const lastDate = dates[0];
+            const dayData = data.filter(e => e.date === lastDate).sort((a, b) => a.time.localeCompare(b.time));
+            
+            const width = 800;
+            const height = 200;
+            const padding = 60;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+            
+            let svgContent = `
+                <text x="400" y="20" text-anchor="middle" fill="var(--text-primary)" font-size="14" font-weight="600">
+                    Timeline du ${formatDate(lastDate)}
+                </text>
+                <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+                <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+            `;
+            
+            // Échelle de temps 0-24h
+            for (let h = 0; h <= 24; h += 4) {
+                const x = padding + (h / 24) * graphWidth;
+                svgContent += `
+                    <text x="${x}" y="${height - padding + 20}" text-anchor="middle" fill="var(--text-secondary)" font-size="12">${h}h</text>
+                    <line x1="${x}" y1="${height - padding}" x2="${x}" y2="${height - padding + 5}" stroke="var(--border)" stroke-width="1"/>
+                `;
+            }
+            
+            // Échelle focus 0-10
+            for (let i = 0; i <= 10; i += 2) {
+                const y = height - padding - (i / 10) * graphHeight;
+                svgContent += `
+                    <text x="${padding - 10}" y="${y + 5}" text-anchor="end" fill="var(--text-secondary)" font-size="12">${i}</text>
+                    <line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--border)" stroke-width="1" opacity="0.3"/>
+                `;
+            }
+            
+            // Points et barres
+            dayData.forEach(entry => {
+                const [hours, minutes] = entry.time.split(':').map(Number);
+                const timeDecimal = hours + minutes / 60;
+                const x = padding + (timeDecimal / 24) * graphWidth;
+                const y = height - padding - (entry.focus / 10) * graphHeight;
+                
+                // Barre verticale pour la dose
+                svgContent += `
+                    <line x1="${x}" y1="${height - padding}" x2="${x}" y2="${y}" stroke="#10b981" stroke-width="3" opacity="0.5"/>
+                    <circle cx="${x}" cy="${y}" r="6" fill="#3b82f6"/>
+                    <text x="${x}" y="${y - 15}" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="600">${entry.dose}mg</text>
+                `;
+            });
+            
+            svg.innerHTML = svgContent;
+        }
+        
+        function updateDoseTrendChart() {
+            const data = getData();
+            const svg = document.getElementById('dose-trend-chart');
+            
+            if (data.length === 0) {
+                svg.innerHTML = '<text x="250" y="100" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Aucune donnée</text>';
+                return;
+            }
+            
+            const groupedByDate = {};
+            data.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = 0;
+                }
+                groupedByDate[entry.date] += entry.dose;
+            });
+            
+            const dates = Object.keys(groupedByDate).sort().slice(-30);
+            const values = dates.map(date => groupedByDate[date]);
+            const maxDose = Math.max(...values, 1);
+            
+            drawLineChart(svg, values, '#10b981', maxDose);
+        }
+        
+        function updateCorrelationChart() {
+            const data = getData();
+            const svg = document.getElementById('correlation-chart');
+            
+            if (data.length === 0) {
+                svg.innerHTML = '<text x="250" y="100" text-anchor="middle" fill="var(--text-secondary)" font-size="14">Aucune donnée</text>';
+                return;
+            }
+            
+            const width = 500;
+            const height = 200;
+            const padding = 40;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+            
+            const maxDose = Math.max(...data.map(e => e.dose), 1);
+            
+            let svgContent = `
+                <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+                <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+                <text x="${padding - 10}" y="${padding - 10}" fill="var(--text-secondary)" font-size="11">Focus</text>
+                <text x="${width - padding}" y="${height - padding + 30}" text-anchor="end" fill="var(--text-secondary)" font-size="11">Dose (mg)</text>
+            `;
+            
+            // Points
+            data.forEach(entry => {
+                const x = padding + (entry.dose / maxDose) * graphWidth;
+                const y = height - padding - (entry.focus / 10) * graphHeight;
+                svgContent += `<circle cx="${x}" cy="${y}" r="4" fill="#3b82f6" opacity="0.6"/>`;
+            });
+            
+            svg.innerHTML = svgContent;
+        }
+        
+        function drawLineChart(svg, values, color, maxValue) {
+            const width = 500;
+            const height = 200;
+            const padding = 40;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+            
+            let svgContent = `
+                <defs>
+                    <linearGradient id="gradient-${color.replace('#', '')}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:${color};stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:${color};stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+                <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+                <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+            `;
+            
+            for (let i = 0; i <= maxValue; i += Math.ceil(maxValue / 5)) {
+                const y = height - padding - (i / maxValue) * graphHeight;
+                svgContent += `
+                    <text x="${padding - 10}" y="${y + 5}" text-anchor="end" fill="var(--text-secondary)" font-size="12">${i}</text>
+                    <line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--border)" stroke-width="1" opacity="0.3"/>
+                `;
+            }
+            
+            if (values.length > 0) {
+                const stepX = graphWidth / Math.max(values.length - 1, 1);
+                let pathLine = '';
+                let pathArea = `M ${padding},${height - padding} `;
+                
+                values.forEach((value, i) => {
+                    const x = padding + i * stepX;
+                    const y = height - padding - (value / maxValue) * graphHeight;
+                    
+                    if (i === 0) {
+                        pathLine = `M ${x},${y}`;
+                        pathArea += `L ${x},${y}`;
+                    } else {
+                        pathLine += ` L ${x},${y}`;
+                        pathArea += ` L ${x},${y}`;
+                    }
+                });
+                
+                pathArea += ` L ${padding + (values.length - 1) * stepX},${height - padding} Z`;
+                
+                svgContent += `<path d="${pathArea}" fill="url(#gradient-${color.replace('#', '')})"/>`;
+                svgContent += `<path d="${pathLine}" stroke="${color}" stroke-width="3" fill="none"/>`;
+                
+                values.forEach((value, i) => {
+                    const x = padding + i * stepX;
+                    const y = height - padding - (value / maxValue) * graphHeight;
+                    svgContent += `<circle cx="${x}" cy="${y}" r="4" fill="${color}"/>`;
+                });
+            }
+            
+            svg.innerHTML = svgContent;
+        }
+        
+        function drawBarChart(svg, effects) {
+            const width = 500;
+            const height = 300;
+            const padding = 60;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+            const barWidth = graphWidth / effects.length - 10;
+            const maxValue = Math.max(...effects.map(e => e.value), 1);
+            
+            let svgContent = `
+                <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+                <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="2"/>
+            `;
+            
+            effects.forEach((effect, i) => {
+                const x = padding + 20 + i * (graphWidth / effects.length);
+                const barHeight = (effect.value / maxValue) * graphHeight;
+                const y = height - padding - barHeight;
+                
+                const color = effect.value > maxValue * 0.6 ? '#ef4444' : 
+                             effect.value > maxValue * 0.3 ? '#f59e0b' : '#10b981';
+                
+                svgContent += `
+                    <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" 
+                          fill="${color}" opacity="0.8" rx="4"/>
+                    <text x="${x + barWidth/2}" y="${y - 5}" text-anchor="middle" 
+                          fill="${color}" font-size="14" font-weight="600">${effect.value}</text>
+                    <text x="${x + barWidth/2}" y="${height - padding + 20}" text-anchor="middle" 
+                          fill="var(--text-secondary)" font-size="12">${effect.name}</text>
+                `;
+            });
+            
+            svg.innerHTML = svgContent;
+        }
+        
+        // Calendar
+        function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            document.getElementById('current-month-year').textContent = 
+                new Date(year, month, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDayOfWeek = firstDay.getDay() || 7; // Lundi = 1
+            const daysInMonth = lastDay.getDate();
+            
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            const data = getData();
+            const groupedByDate = {};
+            data.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = 0;
+                }
+                groupedByDate[entry.date] += entry.dose;
+            });
+            
+            // Jours vides avant le début du mois
+            for (let i = 1; i < startingDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                emptyDay.style.opacity = '0.3';
+                grid.appendChild(emptyDay);
+            }
+            
+            // Jours du mois
+            const today = new Date().toISOString().split('T')[0];
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                
+                if (groupedByDate[dateStr]) {
+                    dayDiv.classList.add('has-data');
+                    dayDiv.innerHTML = `
+                        <div class="calendar-day-number">${day}</div>
+                        <div class="calendar-day-dose">${groupedByDate[dateStr]}mg</div>
+                    `;
+                } else {
+                    dayDiv.innerHTML = `<div class="calendar-day-number">${day}</div>`;
+                }
+                
+                if (dateStr === today) {
+                    dayDiv.classList.add('today');
+                }
+                
+                dayDiv.onclick = () => {
+                    editDate(dateStr);
+                };
+                
+                grid.appendChild(dayDiv);
+            }
+        }
+        
+        function previousMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendar();
+        }
+        
+        function nextMonth() {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendar();
+        }
+        
+        // Period comparison
+        function comparePeriods() {
+            const p1Start = document.getElementById('period1-start').value;
+            const p1End = document.getElementById('period1-end').value;
+            const p2Start = document.getElementById('period2-start').value;
+            const p2End = document.getElementById('period2-end').value;
+            
+            if (!p1Start || !p1End || !p2Start || !p2End) {
+                alert('Veuillez remplir toutes les dates');
+                return;
+            }
+            
+            const data = getData();
+            const period1 = data.filter(e => e.date >= p1Start && e.date <= p1End);
+            const period2 = data.filter(e => e.date >= p2Start && e.date <= p2End);
+            
+            const stats1 = calculatePeriodStats(period1);
+            const stats2 = calculatePeriodStats(period2);
+            
+            const container = document.getElementById('comparison-results');
+            container.innerHTML = `
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Période 1 (${formatDate(p1Start)} - ${formatDate(p1End)})</h3>
+                        <p><strong>Dose moyenne/jour :</strong> ${stats1.avgDose}mg</p>
+                        <p><strong>Focus moyen :</strong> ${stats1.avgFocus}/10</p>
+                        <p><strong>Crash moyen :</strong> ${stats1.avgCrash}/10</p>
+                        <p><strong>Jours avec données :</strong> ${stats1.days}</p>
+                    </div>
+                    <div class="card">
+                        <h3>Période 2 (${formatDate(p2Start)} - ${formatDate(p2End)})</h3>
+                        <p><strong>Dose moyenne/jour :</strong> ${stats2.avgDose}mg</p>
+                        <p><strong>Focus moyen :</strong> ${stats2.avgFocus}/10</p>
+                        <p><strong>Crash moyen :</strong> ${stats2.avgCrash}/10</p>
+                        <p><strong>Jours avec données :</strong> ${stats2.days}</p>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1rem;">
+                    <h3>Différences</h3>
+                    <p><strong>Dose :</strong> ${((stats2.avgDose - stats1.avgDose) / stats1.avgDose * 100).toFixed(1)}%</p>
+                    <p><strong>Focus :</strong> ${((stats2.avgFocus - stats1.avgFocus) / stats1.avgFocus * 100).toFixed(1)}%</p>
+                    <p><strong>Crash :</strong> ${((stats2.avgCrash - stats1.avgCrash) / stats1.avgCrash * 100).toFixed(1)}%</p>
+                </div>
+            `;
+        }
+        
+        function calculatePeriodStats(data) {
+            if (data.length === 0) {
+                return { avgDose: 0, avgFocus: 0, avgCrash: 0, days: 0 };
+            }
+            
+            const groupedByDate = {};
+            data.forEach(entry => {
+                if (!groupedByDate[entry.date]) {
+                    groupedByDate[entry.date] = { dose: 0, focus: [], crash: 0 };
+                }
+                groupedByDate[entry.date].dose += entry.dose;
+                groupedByDate[entry.date].focus.push(entry.focus);
+                groupedByDate[entry.date].crash = entry.crash;
+            });
+            
+            const days = Object.keys(groupedByDate).length;
+            const totalDose = Object.values(groupedByDate).reduce((sum, d) => sum + d.dose, 0);
+            const avgDose = (totalDose / days).toFixed(1);
+            
+            const allFocus = Object.values(groupedByDate).flatMap(d => d.focus);
+            const avgFocus = (allFocus.reduce((sum, f) => sum + f, 0) / allFocus.length).toFixed(1);
+            
+            const avgCrash = (Object.values(groupedByDate).reduce((sum, d) => sum + d.crash, 0) / days).toFixed(1);
+            
+            return { avgDose, avgFocus, avgCrash, days };
+        }
+        
+        // Import/Export
+        function exportToCSV() {
+            const data = getData();
+            
+            if (data.length === 0) {
+                alert('Aucune donnée à exporter');
+                return;
+            }
+            
+            const sorted = data.sort((a, b) => {
+                const dateCompare = a.date.localeCompare(b.date);
+                if (dateCompare !== 0) return dateCompare;
+                return a.time.localeCompare(b.time);
+            });
+            
+            let csv = '"Date";"Heure";"Contexte";"Dose (mg)";"Focus (1-10)";"Crash (0-10)";"Poids (kg)";"Tension (mmHg)";"Sommeil (h)";"Effets Secondaires";"Notes"\n';
+            
+            sorted.forEach(entry => {
+                const effects = [];
+                for (let [key, value] of Object.entries(entry.effects)) {
+                    if (value > 0) {
+                        effects.push(`${formatEffectName(key)}: ${value}/10`);
+                    }
+                }
+                const effectsStr = effects.join(', ');
+                
+                csv += `"${entry.date}";"${entry.time}";"${entry.context || ''}";"${entry.dose}";"${entry.focus}";"${entry.crash}";"${entry.weight || ''}";"${entry.bloodPressure || ''}";"${entry.sleep || ''}";"${effectsStr}";"${(entry.notes || '').replace(/"/g, '""')}"\n`;
+            });
+            
+            const BOM = '\uFEFF';
+            const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `ritaline_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function exportToJSON() {
+            const data = getData();
+            
+            if (data.length === 0) {
+                alert('Aucune donnée à exporter');
+                return;
+            }
+            
+            const backup = {
+                version: '2.0',
+                exportDate: new Date().toISOString(),
+                data: data,
+                settings: {
+                    theme: localStorage.getItem('theme'),
+                    prescriptionDate: localStorage.getItem('prescriptionDate'),
+                    prescriptionDuration: localStorage.getItem('prescriptionDuration')
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `ritaline_backup_${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function exportToPDF() {
+            alert('📄 Export PDF : Cette fonctionnalité nécessite une librairie externe (jsPDF). Pour l\'instant, utilisez l\'export CSV ou prenez des captures d\'écran des graphiques.');
+        }
+        
+        function importData() {
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Veuillez sélectionner un fichier');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    let importedData = [];
+                    
+                    if (file.name.endsWith('.json')) {
+                        const backup = JSON.parse(content);
+                        importedData = backup.data || backup;
+                        
+                        if (backup.settings) {
+                            if (backup.settings.theme) localStorage.setItem('theme', backup.settings.theme);
+                            if (backup.settings.prescriptionDate) localStorage.setItem('prescriptionDate', backup.settings.prescriptionDate);
+                            if (backup.settings.prescriptionDuration) localStorage.setItem('prescriptionDuration', backup.settings.prescriptionDuration);
+                        }
+                    } else if (file.name.endsWith('.csv')) {
+                        // Parser CSV basique
+                        const lines = content.split('\n').slice(1); // Skip header
+                        lines.forEach(line => {
+                            if (line.trim()) {
+                                const parts = line.split(';').map(p => p.replace(/^"|"$/g, ''));
+                                if (parts.length >= 10) {
+                                    // Extraire les effets
+                                    const effectsStr = parts[9];
+                                    const effects = {
+                                        headache: 0, insomnia: 0, appetite: 0,
+                                        anxiety: 0, nausea: 0, heartrate: 0
+                                    };
+                                    
+                                    importedData.push({
+                                        date: parts[0],
+                                        time: parts[1],
+                                        context: parts[2] || '',
+                                        dose: parseInt(parts[3]) || 0,
+                                        focus: parseInt(parts[4]) || 0,
+                                        crash: parseInt(parts[5]) || 0,
+                                        weight: parts[6] ? parseFloat(parts[6]) : null,
+                                        bloodPressure: parts[7] || null,
+                                        sleep: parts[8] ? parseFloat(parts[8]) : null,
+                                        effects: effects,
+                                        notes: parts[10] || ''
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    
+                    if (importedData.length > 0) {
+                        if (confirm(`Importer ${importedData.length} entrées ? Cela fusionnera avec vos données existantes.`)) {
+                            const existingData = getData();
+                            const mergedData = [...existingData, ...importedData];
+                            saveData(mergedData);
+                            loadHistory();
+                            updateAllCharts();
+                            updateDashboard();
+                            renderCalendar();
+                            alert(`✅ ${importedData.length} entrées importées avec succès !`);
+                        }
+                    } else {
+                        alert('Aucune donnée valide trouvée dans le fichier');
+                    }
+                } catch (error) {
+                    alert('Erreur lors de l\'import : ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // Prescription alert
+        function savePrescriptionDate() {
+            const date = document.getElementById('prescription-date').value;
+            const duration = parseInt(document.getElementById('prescription-duration').value);
+            
+            if (date) {
+                localStorage.setItem('prescriptionDate', date);
+                localStorage.setItem('prescriptionDuration', duration);
+                checkPrescriptionAlert();
+            }
+        }
+        
+        function checkPrescriptionAlert() {
+            const prescriptionDate = localStorage.getItem('prescriptionDate');
+            const duration = parseInt(localStorage.getItem('prescriptionDuration') || 30);
+            
+            if (!prescriptionDate) return;
+            
+            const startDate = new Date(prescriptionDate);
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + duration);
+            
+            const today = new Date();
+            const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+            
+            const alertDiv = document.getElementById('prescription-alert');
+            
+            if (daysLeft <= 0) {
+                alertDiv.innerHTML = '<div class="alert alert-danger">⚠️ Votre ordonnance est expirée ! Consultez votre médecin.</div>';
+            } else if (daysLeft <= 7) {
+                alertDiv.innerHTML = `<div class="alert alert-warning">⚠️ Plus que ${daysLeft} jours avant la fin de votre ordonnance.</div>`;
+            } else {
+                alertDiv.innerHTML = `<div class="alert alert-success">✅ Ordonnance valide (${daysLeft} jours restants)</div>`;
+            }
+        }
+        
+        // LocalStorage
+        function getData() {
+            const data = localStorage.getItem('ritalineData');
+            return data ? JSON.parse(data) : [];
+        }
+        
+        function saveData(data) {
+            localStorage.setItem('ritalineData', JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
